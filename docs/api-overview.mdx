@@ -1,0 +1,65 @@
+---
+title: API Overview
+description: Authentication, base URLs, rate limits, and error codes
+tags: [public, private]
+---
+
+# API Overview
+
+The Example API is a REST API that accepts JSON request bodies and returns JSON responses.
+
+## Base URL
+
+```
+https://api.example.com/v1
+```
+
+## Authentication
+
+Every request must include your API key in the `Authorization` header:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+API keys are prefixed with `ex_`. Never commit them to source control — use environment variables.
+
+## Rate limits
+
+| Plan       | Requests / min | Tokens / min |
+|------------|---------------|-------------|
+| Free       | 10            | 10,000      |
+| Pro        | 100           | 100,000     |
+| Enterprise | Unlimited     | Unlimited   |
+
+When you exceed a rate limit, the API returns `429 Too Many Requests` with a
+`Retry-After` header indicating how many seconds to wait.
+
+## Errors
+
+The API uses standard HTTP status codes.
+
+| Code | Meaning               | Common cause                        |
+|------|-----------------------|-------------------------------------|
+| 400  | Bad Request           | Missing or invalid field            |
+| 401  | Unauthorized          | Missing or expired API key          |
+| 403  | Forbidden             | Key lacks permission for this route |
+| 429  | Too Many Requests     | Rate limit exceeded                 |
+| 500  | Internal Server Error | Something went wrong on our end     |
+
+Error responses include a JSON body:
+
+```json
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "You have exceeded your requests-per-minute limit.",
+    "retry_after": 12
+  }
+}
+```
+
+## Versioning
+
+The current stable version is `v1`. Breaking changes will be released under a new version
+prefix, and old versions are supported for 12 months after deprecation.

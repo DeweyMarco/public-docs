@@ -1,0 +1,43 @@
+---
+title: Introduction
+description: Welcome to the Example API — what it does and how to get started
+tags: [public]
+---
+
+# Welcome to Example API
+
+Example API gives developers access to state-of-the-art language models through a simple,
+familiar REST interface.
+
+## What you can build
+
+- **Chatbots and assistants** — conversational interfaces for your app
+- **Content generation** — drafts, summaries, translations, and more
+- **Code tools** — autocompletion, explanation, review
+- **Data extraction** — structured output from unstructured text
+
+## How it works
+
+You send a prompt (and optional configuration) to the API. We run it through the model
+and return the generated text. That's it.
+
+```json
+POST /v1/completions
+
+{
+  "model": "example-v1",
+  "prompt": "Summarize this in one sentence: ...",
+  "max_tokens": 100
+}
+```
+
+## Where to start
+
+<CardGroup cols={2}>
+  <Card title="Getting Started" icon="rocket" href="/docs/getting-started">
+    Make your first API request in minutes
+  </Card>
+  <Card title="API Overview" icon="book" href="/docs/api-overview">
+    Authentication, rate limits, and error codes
+  </Card>
+</CardGroup>

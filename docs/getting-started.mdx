@@ -1,0 +1,54 @@
+---
+title: Getting Started
+description: Learn how to make your first API request in minutes
+tags: [public, private]
+---
+
+# Getting Started
+
+This guide walks you through your first integration with the Example API.
+
+## Prerequisites
+
+- An API key (get one from your [dashboard](https://example.com/dashboard))
+- Node.js 18+ or Python 3.10+
+
+## Install the SDK
+
+<CodeGroup>
+```bash npm
+npm install @example/sdk
+```
+
+```bash pip
+pip install example-sdk
+```
+</CodeGroup>
+
+## Your first request
+
+```javascript
+import { ExampleClient } from '@example/sdk';
+
+const client = new ExampleClient({
+  apiKey: process.env.EXAMPLE_API_KEY,
+});
+
+const response = await client.completions.create({
+  model: 'example-v1',
+  prompt: 'Say hello in three languages.',
+  max_tokens: 100,
+});
+
+console.log(response.text);
+```
+
+## What happens next
+
+The API returns a JSON response with a `text` field containing the model's output.
+If the request fails, it throws an `ExampleAPIError` with a `.status` code and `.message`.
+
+## Next steps
+
+- Read the [API Overview](/docs/api-overview) to understand authentication and rate limits
+- Browse the full API reference in the sidebar

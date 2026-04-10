@@ -1,0 +1,9 @@
+{
+  "name": "public-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Public documentation site",
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}

@@ -1,0 +1,73 @@
+name: Sync docs → private-monorepo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    # ── Anti-loop guard ──────────────────────────────────────────────────────
+    # If this push was itself made by the sync bot, skip immediately.
+    if: "!contains(github.event.head_commit.message, '[sync]')"
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Collect changed / deleted MDX files ───────────────────────────
+      - name: Get changed files
+        id: files
+        run: |
+          DIFF=$(git diff-tree --no-commit-id -r --name-status HEAD -- "docs/")
+
+          CHANGED=$(echo "$DIFF" | grep -E '^[AM]' | awk '{print $2}' || true)
+          DELETED=$(echo "$DIFF" | grep -E '^D'    | awk '{print $2}' || true)
+
+          echo "Changed files:"
+          echo "$CHANGED"
+          echo "Deleted files:"
+          echo "$DELETED"
+
+          {
+            echo "changed<<EOF_CHANGED"
+            echo "$CHANGED"
+            echo "EOF_CHANGED"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "deleted<<EOF_DELETED"
+            echo "$DELETED"
+            echo "EOF_DELETED"
+          } >> "$GITHUB_OUTPUT"
+
+      # ── 3. Install dependencies ──────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install gray-matter
+        run: npm install --no-save gray-matter
+
+      # ── 4. Run sync ──────────────────────────────────────────────────────
+      - name: Sync to private-monorepo
+        env:
+          SYNC_PAT: ${{ secrets.SYNC_PAT }}
+          SYNC_DIRECTION: public-to-private
+          SOURCE_REPO: ${{ github.repository }}
+          # !! Replace with your actual private-monorepo repo (e.g. your-org/private-monorepo)
+          TARGET_REPO: DeweyMarco/private-monorepo
+          SOURCE_DOCS_DIR: docs
+          TARGET_DOCS_DIR: docs
+          TARGET_BRANCH: main
+          CHANGED_FILES: ${{ steps.files.outputs.changed }}
+          DELETED_FILES: ${{ steps.files.outputs.deleted }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node scripts/sync.js
