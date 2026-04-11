@@ -1,0 +1,55 @@
+---
+title: Error Reference
+description: Complete list of API error codes and how to handle them
+tags: [public, private]
+---
+
+# Error Reference
+
+All errors return a JSON body with a consistent shape:
+
+```json
+{
+  "error": {
+    "code": "string",
+    "message": "string",
+    "param": "string | null"
+  }
+}
+```
+
+`param` is set when the error relates to a specific request field (e.g. `model`, `max_tokens`).
+
+## Error codes
+
+### `invalid_request`
+**HTTP 400** — The request body is malformed or missing a required field.
+Check the `param` field for which parameter caused the issue.
+
+### `invalid_api_key`
+**HTTP 401** — The API key is missing, malformed, or has been revoked.
+Generate a new key from the dashboard.
+
+### `insufficient_scope`
+**HTTP 403** — The API key doesn't have the scope required for this endpoint.
+Create a key with the appropriate scope — see [Authentication](/guides/authentication).
+
+### `model_not_found`
+**HTTP 404** — The requested model doesn't exist or you don't have access to it.
+Check the models list for available model IDs.
+
+### `context_length_exceeded`
+**HTTP 400** — The prompt plus `max_tokens` exceeds the model's context window.
+Shorten your prompt or reduce `max_tokens`.
+
+### `rate_limit_exceeded`
+**HTTP 429** — You've hit a requests-per-minute or tokens-per-minute limit.
+Respect the `Retry-After` header — see [Rate Limiting](/guides/rate-limiting).
+
+### `server_error`
+**HTTP 500** — Something went wrong on our end. These are rare and usually transient.
+Retry with exponential backoff. If it persists, check the status page.
+
+### `service_unavailable`
+**HTTP 503** — The API is temporarily unavailable (e.g. during maintenance).
+Retry after a short delay.
