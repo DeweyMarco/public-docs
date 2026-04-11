@@ -1,0 +1,66 @@
+---
+title: Rate Limiting
+description: Understanding and handling rate limits in the Example API
+tags: [public, private]
+---
+
+# Rate Limiting
+
+The Example API enforces rate limits to keep the service stable for everyone.
+
+## Limit types
+
+Two independent limits apply to every API key:
+
+| Limit            | Measured over | Resets          |
+|------------------|--------------|-----------------|
+| Requests per min | 60 seconds   | Rolling window  |
+| Tokens per min   | 60 seconds   | Rolling window  |
+
+Your plan determines the ceilings — see [API Overview](/api-overview) for the table.
+
+## Reading the response headers
+
+Every response includes headers that tell you where you stand:
+
+```http
+X-RateLimit-Limit-Requests: 100
+X-RateLimit-Remaining-Requests: 83
+X-RateLimit-Reset-Requests: 1714000060
+
+X-RateLimit-Limit-Tokens: 100000
+X-RateLimit-Remaining-Tokens: 91200
+X-RateLimit-Reset-Tokens: 1714000060
+```
+
+## Handling 429s
+
+When you exceed a limit the API returns `429 Too Many Requests` with a `Retry-After`
+header:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 8
+```
+
+Retry after that many seconds. A simple exponential backoff works well:
+
+```javascript
+async function withRetry(fn, maxAttempts = 4) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (err.status !== 429 || attempt === maxAttempts - 1) throw err;
+      const wait = (err.retryAfter ?? Math.pow(2, attempt)) * 1000;
+      await new Promise(r => setTimeout(r, wait));
+    }
+  }
+}
+```
+
+## Avoiding limits
+
+- **Batch where possible** — combine multiple small prompts into one request
+- **Cache responses** — identical prompts produce identical outputs
+- **Use streaming** — streaming responses count the same but feel faster to end users
