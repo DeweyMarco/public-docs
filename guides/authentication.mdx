@@ -1,0 +1,52 @@
+---
+title: Authentication
+description: How to authenticate requests to the Example API
+tags: [public, private]
+---
+
+# Authentication
+
+The Example API uses API keys for authentication. Every request must include your key
+in the `Authorization` header.
+
+## Getting your API key
+
+1. Sign in to the [dashboard](https://example.com/dashboard)
+2. Go to **Settings → API Keys**
+3. Click **Create new key**
+4. Copy it immediately — it won't be shown again
+
+## Using your key
+
+Pass it as a Bearer token on every request:
+
+```http
+Authorization: Bearer ex_your_key_here
+```
+
+In code:
+
+```javascript
+const client = new ExampleClient({
+  apiKey: process.env.EXAMPLE_API_KEY,
+});
+```
+
+Never hardcode keys. Use environment variables or a secrets manager.
+
+## Key scopes
+
+When creating a key you can restrict what it can do:
+
+| Scope           | What it allows                      |
+|-----------------|-------------------------------------|
+| `completions`   | Run completion requests             |
+| `usage:read`    | Read usage and billing data         |
+| `keys:manage`   | Create and revoke other API keys    |
+
+For most integrations, `completions` is all you need.
+
+## Rotating keys
+
+To rotate a key, create a new one, update your environment, then revoke the old key from
+the dashboard. Revocation is immediate.
