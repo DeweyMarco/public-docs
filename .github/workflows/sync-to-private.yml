@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "docs/**"
+      - "*.mdx"       # root-level MDX files
+      - "**/*.mdx"    # MDX files in subdirectories (guides/, reference/, etc.)
 
 jobs:
   sync:
@@ -25,10 +26,12 @@ jobs:
       - name: Get changed files
         id: files
         run: |
-          DIFF=$(git diff-tree --no-commit-id -r --name-status HEAD -- "docs/")
+          # Get all changed files then filter to .mdx only
+          # (files live at repo root and in subdirs, not under a docs/ prefix)
+          DIFF=$(git diff-tree --no-commit-id -r --name-status HEAD)
 
-          CHANGED=$(echo "$DIFF" | grep -E '^[AM]' | awk '{print $2}' || true)
-          DELETED=$(echo "$DIFF" | grep -E '^D'    | awk '{print $2}' || true)
+          CHANGED=$(echo "$DIFF" | grep -E '^[AM]' | awk '{print $2}' | grep -E '\.mdx$' || true)
+          DELETED=$(echo "$DIFF" | grep -E '^D'    | awk '{print $2}' | grep -E '\.mdx$' || true)
 
           echo "Changed files:"
           echo "$CHANGED"
@@ -62,10 +65,9 @@ jobs:
           SYNC_PAT: ${{ secrets.SYNC_PAT }}
           SYNC_DIRECTION: public-to-private
           SOURCE_REPO: ${{ github.repository }}
-          # !! Replace with your actual private-monorepo repo (e.g. your-org/private-monorepo)
           TARGET_REPO: DeweyMarco/private-monorepo
-          SOURCE_DOCS_DIR: docs
-          TARGET_DOCS_DIR: docs
+          SOURCE_DOCS_DIR: ""   # files live at repo root in public-docs
+          TARGET_DOCS_DIR: docs # files live under docs/ in the monorepo
           TARGET_BRANCH: main
           CHANGED_FILES: ${{ steps.files.outputs.changed }}
           DELETED_FILES: ${{ steps.files.outputs.deleted }}

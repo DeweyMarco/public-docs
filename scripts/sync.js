@@ -27,8 +27,9 @@ const DIRECTION     = process.env.SYNC_DIRECTION;
 const SOURCE_REPO   = process.env.SOURCE_REPO;
 const TARGET_REPO   = process.env.TARGET_REPO;
 const TOKEN         = process.env.SYNC_PAT;
-const SOURCE_DIR    = (process.env.SOURCE_DOCS_DIR || 'docs').replace(/\/$/, '');
-const TARGET_DIR    = (process.env.TARGET_DOCS_DIR || 'docs').replace(/\/$/, '');
+// Use ?? so an explicitly empty string ("") means repo root, not the default
+const SOURCE_DIR    = (process.env.SOURCE_DOCS_DIR ?? '').replace(/\/$/, '');
+const TARGET_DIR    = (process.env.TARGET_DOCS_DIR ?? '').replace(/\/$/, '');
 const TARGET_BRANCH = process.env.TARGET_BRANCH   || 'main';
 const COMMIT_MSG    = (process.env.COMMIT_MESSAGE  || 'update docs').trim();
 
@@ -125,14 +126,20 @@ function hasTag(frontmatterData, tag) {
 
 /**
  * Maps a source-relative path to the equivalent path in the target repo.
- * e.g.  "docs/getting-started.mdx"  →  "docs/getting-started.mdx"
- *       "docs/subdir/page.mdx"      →  "docs/subdir/page.mdx"
+ *
+ * Examples (private-monorepo → public-docs, SOURCE_DIR=docs, TARGET_DIR=""):
+ *   "docs/getting-started.mdx"       →  "getting-started.mdx"
+ *   "docs/guides/authentication.mdx" →  "guides/authentication.mdx"
+ *
+ * Examples (public-docs → private-monorepo, SOURCE_DIR="", TARGET_DIR=docs):
+ *   "getting-started.mdx"            →  "docs/getting-started.mdx"
+ *   "guides/authentication.mdx"      →  "docs/guides/authentication.mdx"
  */
 function toTargetPath(sourcePath) {
-  // Strip the source docs dir prefix, then prepend the target docs dir
-  const rel = path.relative(SOURCE_DIR, sourcePath);
-  // Normalise to forward slashes for the GitHub API
-  return TARGET_DIR + '/' + rel.split(path.sep).join('/');
+  // When SOURCE_DIR is empty, treat the repo root as the source base
+  const srcBase = SOURCE_DIR || '.';
+  const rel = path.relative(srcBase, sourcePath).split(path.sep).join('/');
+  return TARGET_DIR ? `${TARGET_DIR}/${rel}` : rel;
 }
 
 // ── Sync actions ─────────────────────────────────────────────────────────────
