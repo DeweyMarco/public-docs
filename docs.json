@@ -1,0 +1,33 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Example API",
+  "theme": "mint",
+  "colors": {
+    "primary": "#2563EB"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Overview",
+        "pages": [
+          "intro",
+          "getting-started",
+          "api-overview"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/authentication",
+          "guides/rate-limiting"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/errors"
+        ]
+      }
+    ]
+  }
+}
