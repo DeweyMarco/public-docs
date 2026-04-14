@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * sync.js — Bi-directional docs sync via GitHub REST API
+ * public-sync.js — Bi-directional docs sync via GitHub REST API
  *
  * Environment variables (all required):
  *   SYNC_DIRECTION   'private-to-public' | 'public-to-private'

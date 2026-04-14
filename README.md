@@ -25,7 +25,7 @@ based on frontmatter tags.
 
 | File | What it does |
 |------|-------------|
-| [`scripts/sync.js`](scripts/sync.js) | The sync script — reads changed files, checks tags, calls GitHub API |
+| [`scripts/public-sync.js`](scripts/public-sync.js) | The sync script — reads changed files, checks tags, calls GitHub API |
 | [`.github/workflows/sync-to-private.yml`](.github/workflows/sync-to-private.yml) | Workflow that runs on push and syncs back to `private-monorepo` |
 
 The sync script is identical in both repos. All the logic lives in one place.
